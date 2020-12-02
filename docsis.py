@@ -14,20 +14,23 @@ class Docsis:
     CHECK_LOGIN="actionHandler/checkLogin.php"
     RESTART= "actionHandler/ajaxSet_DeviceRestart.php"
 
-    def __init__(self,username,password,base_url="192.168.0.1"):
+    def __init__(self,username,password,ip):
         self.username=username
         self.password=password
-        self.base_url=base_url
+        self.base_url=ip
         self.s = requests.session()
         self.s.headers.update(
             {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36',
-            'Host':base_url})
+            'Host':self.base_url})
 
 
     def build_url(self,endpoint):
         return "http://{}/{}".format(self.base_url,endpoint)
 
     def login(self):
+        '''
+        Authenticate to the modem
+        '''
         ep = self.build_url(self.AUTH)
         data = {
             'login':'LogIn',
@@ -59,6 +62,9 @@ class Docsis:
         return json.loads(self.s.post(ep,data).content)
 
     def restart(self):
+        '''
+        Restart the modem.  Must be logged in.
+        '''
         ep = self.build_url(self.RESTART)
         settings = json.dumps({ "DeviceRestart":"Router,WiFi,VoIP,Dect,MoCA", 
 		"LoginName":self.username, 
